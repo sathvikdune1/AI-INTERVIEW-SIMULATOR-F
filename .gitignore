@@ -1,0 +1,35 @@
+# Virtual environment
+venv/
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Node / React
+node_modules/
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+desktop.ini
+.DS_Store
+
+# Secrets
+*.pem
+*.key
+
+# Logs
+*.log
+
+# Large / unwanted files
+*.pdf
+*.docx
+*.pptx
+*.exe
+*.iso

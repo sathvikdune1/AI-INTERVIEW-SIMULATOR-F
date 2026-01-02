@@ -1,0 +1,178 @@
+/* =========================================================
+   🌌 GLOBAL COOL FUTURISTIC THEME
+   ========================================================= */
+
+:root {
+  --bg-gradient: radial-gradient(circle at top left, #0b1d3a, #050814 70%);
+  --glass-bg: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.18);
+
+  --neon-blue: #38bdf8;
+  --neon-purple: #818cf8;
+  --neon-green: #4ade80;
+  --neon-red: #f87171;
+}
+
+/* Page background */
+body {
+  background: var(--bg-gradient);
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* =========================================================
+   🧊 GLASS CARD
+   ========================================================= */
+
+.glass-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+
+  border-radius: 18px;
+  padding: 26px;
+  border: 1px solid var(--glass-border);
+
+  box-shadow:
+    0 0 40px rgba(56, 189, 248, 0.18),
+    inset 0 0 25px rgba(255, 255, 255, 0.05);
+
+  transition: all 0.35s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow:
+    0 0 55px rgba(56, 189, 248, 0.35),
+    inset 0 0 30px rgba(255, 255, 255, 0.07);
+}
+
+/* =========================================================
+   ✨ NEON TEXT
+   ========================================================= */
+
+.neon-text {
+  color: var(--neon-blue);
+  text-shadow:
+    0 0 12px rgba(56, 189, 248, 0.65),
+    0 0 22px rgba(56, 189, 248, 0.35);
+}
+
+/* =========================================================
+   📊 DASHBOARD GRID
+   ========================================================= */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 26px;
+}
+
+/* =========================================================
+   🔵 FLOATING GLOW ORBS
+   ========================================================= */
+
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.35;
+  pointer-events: none;
+  animation: floatOrb 14s ease-in-out infinite;
+}
+
+.bg-orb.blue {
+  background: var(--neon-blue);
+}
+
+.bg-orb.purple {
+  background: var(--neon-purple);
+}
+
+@keyframes floatOrb {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-60px); }
+  100% { transform: translateY(0); }
+}
+
+/* =========================================================
+   🤖 ROBOT IMAGE EFFECT
+   ========================================================= */
+
+.robot-glow {
+  filter: drop-shadow(0 0 35px rgba(56, 189, 248, 0.6));
+}
+
+/* =========================================================
+   🔘 AI NEON BUTTON
+   ========================================================= */
+
+.ai-button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+
+  background: linear-gradient(
+    135deg,
+    var(--neon-blue),
+    var(--neon-purple)
+  );
+
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+
+  box-shadow:
+    0 0 20px rgba(56, 189, 248, 0.5);
+
+  transition: all 0.3s ease;
+}
+
+.ai-button:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 35px rgba(56, 189, 248, 0.85);
+}
+
+.ai-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   📈 PROGRESS BAR (ENHANCED LOOK)
+   ========================================================= */
+
+.progress-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--neon-blue),
+    var(--neon-purple)
+  );
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+  transition: width 0.6s ease;
+}
+
+/* =========================================================
+   🟢 RESULT STATES
+   ========================================================= */
+
+.text-success {
+  color: var(--neon-green);
+  text-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
+}
+
+.text-fail {
+  color: var(--neon-red);
+  text-shadow: 0 0 12px rgba(248, 113, 113, 0.6);
+}
