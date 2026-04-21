@@ -1,178 +1,729 @@
 /* =========================================================
-   🌌 GLOBAL COOL FUTURISTIC THEME
+   🌌 GLOBAL FUTURISTIC THEME
    ========================================================= */
 
-:root {
-  --bg-gradient: radial-gradient(circle at top left, #0b1d3a, #050814 70%);
-  --glass-bg: rgba(255, 255, 255, 0.10);
-  --glass-border: rgba(255, 255, 255, 0.18);
+:root{
+--bg-gradient: radial-gradient(circle at top left,#0b1d3a,#050814 70%);
+--glass-bg: rgba(255,255,255,0.06);
+--glass-border: rgba(255,255,255,0.14);
 
-  --neon-blue: #38bdf8;
-  --neon-purple: #818cf8;
-  --neon-green: #4ade80;
-  --neon-red: #f87171;
+--neon-blue:#38bdf8;
+--neon-purple:#818cf8;
+--neon-green:#4ade80;
+--neon-red:#f87171;
 }
 
-/* Page background */
-body {
-  background: var(--bg-gradient);
-  color: #ffffff;
-  overflow-x: hidden;
-}
 
 /* =========================================================
-   🧊 GLASS CARD
+   🌌 PAGE BACKGROUND
    ========================================================= */
 
-.glass-card {
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-
-  border-radius: 18px;
-  padding: 26px;
-  border: 1px solid var(--glass-border);
-
-  box-shadow:
-    0 0 40px rgba(56, 189, 248, 0.18),
-    inset 0 0 25px rgba(255, 255, 255, 0.05);
-
-  transition: all 0.35s ease;
+body{
+background:var(--bg-gradient);
+color:#fff;
+overflow-x:hidden;
+font-family:Inter,system-ui;
 }
 
-.glass-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow:
-    0 0 55px rgba(56, 189, 248, 0.35),
-    inset 0 0 30px rgba(255, 255, 255, 0.07);
+/* animated background glow */
+
+body::before{
+content:"";
+position:fixed;
+top:-50%;
+left:-50%;
+width:200%;
+height:200%;
+
+background:
+radial-gradient(circle,#38bdf830 0%,transparent 40%),
+radial-gradient(circle,#818cf830 0%,transparent 40%);
+
+animation:rotateBg 35s linear infinite;
+z-index:-1;
+
+/* IMPORTANT FIX */
+pointer-events:none;
 }
+
+@keyframes rotateBg{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
 
 /* =========================================================
-   ✨ NEON TEXT
+   🏠 MAIN LAYOUT
    ========================================================= */
 
-.neon-text {
-  color: var(--neon-blue);
-  text-shadow:
-    0 0 12px rgba(56, 189, 248, 0.65),
-    0 0 22px rgba(56, 189, 248, 0.35);
+.home-layout{
+width:100%;
+max-width:1700px;
+margin:0 auto;
+padding:60px 120px;
 }
+
 
 /* =========================================================
-   📊 DASHBOARD GRID
+   🧊 GLASS CARD (UPDATED FOR DASHBOARD)
    ========================================================= */
 
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 26px;
+.glass-card{
+
+background:linear-gradient(
+145deg,
+rgba(255,255,255,0.08),
+rgba(255,255,255,0.03)
+);
+
+-webkit-backdrop-filter: blur(18px);
+backdrop-filter: blur(18px);
+
+border-radius:18px;
+
+border:1px solid var(--glass-border);
+
+box-shadow:
+0 15px 35px rgba(0,0,0,0.55),
+0 0 30px rgba(56,189,248,0.12);
+
+transition:all .35s ease;
+position:relative;
+overflow:hidden;
+/* ⭐ ADD THESE TWO LINES */
+z-index: 10;
+pointer-events: auto;
 }
+
+.glass-card::after{
+content:"";
+position:absolute;
+inset:0;
+background:linear-gradient(
+120deg,
+transparent,
+rgba(255,255,255,0.08),
+transparent
+);
+opacity:0;
+transition:.5s;
+
+/* IMPORTANT FIX */
+pointer-events:none;
+}
+
+.glass-card:hover::after{
+opacity:1;
+}
+
+.glass-card:hover{
+transform:translateY(-8px) scale(1.02);
+box-shadow:
+0 20px 45px rgba(0,0,0,0.65),
+0 0 40px rgba(56,189,248,0.35);
+}
+
 
 /* =========================================================
-   🔵 FLOATING GLOW ORBS
+   HERO CARD
    ========================================================= */
 
-.bg-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.35;
-  pointer-events: none;
-  animation: floatOrb 14s ease-in-out infinite;
+.hero-card{
+display:flex;
+align-items:center;
+justify-content:space-between;
+
+padding:60px 80px;
+
+background:#10182a;
+
+border-radius:20px;
+
+box-shadow:0 0 45px rgba(0,255,255,0.18);
+
+margin-bottom:70px;
 }
 
-.bg-orb.blue {
-  background: var(--neon-blue);
+.hero-card:hover{
+transform:translateY(-4px);
+box-shadow:0 0 55px rgba(0,255,255,0.28);
 }
 
-.bg-orb.purple {
-  background: var(--neon-purple);
-}
-
-@keyframes floatOrb {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-60px); }
-  100% { transform: translateY(0); }
-}
 
 /* =========================================================
-   🤖 ROBOT IMAGE EFFECT
+   HERO TEXT
    ========================================================= */
 
-.robot-glow {
-  filter: drop-shadow(0 0 35px rgba(56, 189, 248, 0.6));
+.hero-title{
+font-size:44px;
+font-weight:700;
+margin-bottom:10px;
 }
+
+.hero-title span{
+color:#00e5ff;
+}
+
+.hero-desc{
+color:#aab0c0;
+margin-bottom:28px;
+font-size:16px;
+}
+
+.hero-text{
+max-width:600px;
+}
+
 
 /* =========================================================
-   🔘 AI NEON BUTTON
+   MAGIC START BUTTON
    ========================================================= */
 
-.ai-button {
-  width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
+.start-btn{
 
-  background: linear-gradient(
-    135deg,
-    var(--neon-blue),
-    var(--neon-purple)
-  );
+padding:15px 45px;
+border-radius:50px;
 
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
+border:none;
 
-  box-shadow:
-    0 0 20px rgba(56, 189, 248, 0.5);
+background:linear-gradient(90deg,#ff2f6e,#00e5ff);
 
-  transition: all 0.3s ease;
+color:white;
+font-weight:600;
+font-size:15px;
+
+cursor:pointer;
+
+transition:.35s;
+
+box-shadow:0 0 25px rgba(0,229,255,0.45);
+
+position:relative;
+overflow:hidden;
 }
 
-.ai-button:hover {
-  transform: scale(1.05);
-  box-shadow:
-    0 0 35px rgba(56, 189, 248, 0.85);
+.start-btn:hover{
+transform:scale(1.08);
+box-shadow:0 0 40px #00e5ff;
 }
 
-.ai-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.start-btn:active{
+transform:scale(.95);
 }
+
+/* magic pulse */
+
+.magic-btn{
+animation:magicPulse 1s infinite alternate;
+}
+
+@keyframes magicPulse{
+0%{box-shadow:0 0 15px #00e5ff;}
+100%{box-shadow:0 0 45px #00e5ff;}
+}
+
 
 /* =========================================================
-   📈 PROGRESS BAR (ENHANCED LOOK)
+   SECTION TITLES
    ========================================================= */
 
-.progress-container {
-  width: 100%;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  overflow: hidden;
+.section-title{
+font-size:26px;
+font-weight:600;
+margin-bottom:28px;
 }
 
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--neon-blue),
-    var(--neon-purple)
-  );
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
-  transition: width 0.6s ease;
-}
 
 /* =========================================================
-   🟢 RESULT STATES
+   FEATURE CARDS
    ========================================================= */
 
-.text-success {
-  color: var(--neon-green);
-  text-shadow: 0 0 12px rgba(74, 222, 128, 0.6);
+.features-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:24px;
+margin-bottom:60px;
 }
 
-.text-fail {
-  color: var(--neon-red);
-  text-shadow: 0 0 12px rgba(248, 113, 113, 0.6);
+.feature-card{
+background:#0f172a;
+padding:26px;
+border-radius:14px;
+
+font-weight:600;
+
+transition:.3s;
+box-shadow:0 5px 18px rgba(0,0,0,0.45);
+}
+
+.feature-card p{
+font-size:14px;
+margin-top:8px;
+color:#9ca3af;
+}
+
+.feature-card:hover{
+transform:translateY(-8px);
+box-shadow:0 0 25px rgba(56,189,248,0.45);
+}
+
+
+/* =========================================================
+   INTERVIEW LOG GRID
+   ========================================================= */
+
+.logs-grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+gap:28px;
+}
+
+
+/* =========================================================
+   INTERVIEW CARD
+   ========================================================= */
+
+.log-card{
+
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+
+background:#0f172a;
+
+padding:22px;
+
+border-radius:14px;
+
+transition:.35s;
+
+box-shadow:0 8px 22px rgba(0,0,0,0.55);
+
+min-height:150px;
+}
+
+.log-content{
+flex:1;
+margin-bottom:14px;
+}
+
+.log-card:hover{
+transform:translateY(-6px);
+box-shadow:0 0 28px rgba(0,229,255,0.35);
+}
+
+
+/* =========================================================
+   DASHBOARD CARD ANIMATIONS
+   ========================================================= */
+
+@keyframes cardEnter{
+0%{
+opacity:0;
+transform:translateY(50px) scale(.95);
+}
+100%{
+opacity:1;
+transform:translateY(0) scale(1);
+}
+}
+
+.card-animate{
+animation:cardEnter .6s ease forwards;
+opacity:0;
+}
+
+
+/* =========================================================
+   FINAL SCORE POP
+   ========================================================= */
+
+@keyframes scorePop{
+0%{
+opacity:0;
+transform:scale(.7);
+}
+100%{
+opacity:1;
+transform:scale(1);
+}
+}
+
+.animate-scorePop{
+animation:scorePop .8s ease forwards;
+}
+
+
+/* =========================================================
+   GLOW TEXT
+   ========================================================= */
+
+.glow-text{
+text-shadow:
+0 0 10px rgba(56,189,248,0.7),
+0 0 25px rgba(56,189,248,0.5),
+0 0 45px rgba(56,189,248,0.3);
+}
+
+
+/* =========================================================
+   FEEDBACK CARD HOVER
+   ========================================================= */
+
+.feedback-card:hover{
+transform:translateY(-4px) scale(1.01);
+}
+
+
+/* =========================================================
+   PROGRESS BAR ANIMATION
+   ========================================================= */
+
+.progress-animate{
+animation:progressGrow 1.2s ease forwards;
+}
+
+@keyframes progressGrow{
+0%{
+transform:scaleX(0);
+opacity:.5;
+}
+100%{
+transform:scaleX(1);
+opacity:1;
+}
+}
+
+
+/* =========================================================
+   PAGE FADE
+   ========================================================= */
+
+@keyframes pageFade{
+0%{
+opacity:0;
+transform:translateY(30px);
+}
+100%{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.animate-pageFade{
+animation:pageFade .8s ease forwards;
+}
+/* ================================
+   DASHBOARD LAYOUT
+================================ */
+
+.dashboard-container{
+width:100%;
+max-width:1700px;
+margin:auto;
+padding:60px 120px;
+animation:pageFade .8s ease;
+}
+
+.dashboard-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:70px;
+}
+
+.dashboard-title{
+font-size:48px;
+font-weight:700;
+
+background:linear-gradient(90deg,#38bdf8,#60a5fa);
+-webkit-background-clip:text;
+color:transparent;
+}
+
+.dashboard-home-btn{
+
+background:linear-gradient(135deg,#38bdf8,#818cf8);
+
+border:none;
+padding:12px 28px;
+border-radius:10px;
+
+color:white;
+font-weight:600;
+
+cursor:pointer;
+
+transition:.3s;
+}
+
+.dashboard-home-btn:hover{
+transform:scale(1.05);
+box-shadow:0 0 20px #38bdf8;
+}
+
+
+/* ================================
+   SCORE GRID
+================================ */
+
+.dashboard-grid{
+
+display:grid;
+grid-template-columns:repeat(5,1fr);
+
+gap:40px;
+
+margin-bottom:80px;
+}
+
+
+/* ================================
+   DASHBOARD CARD
+================================ */
+
+.dashboard-card{
+
+background:rgba(255,255,255,0.05);
+
+border:1px solid rgba(255,255,255,0.1);
+
+border-radius:18px;
+
+padding:28px;
+
+-webkit-backdrop-filter: blur(20px);
+backdrop-filter: blur(20px);
+
+box-shadow:
+0 15px 35px rgba(0,0,0,0.6),
+0 0 30px rgba(56,189,248,0.12);
+
+transition:.35s ease;
+}
+
+.dashboard-card:hover{
+
+transform:translateY(-10px) scale(1.02);
+
+box-shadow:
+0 25px 50px rgba(0,0,0,0.8),
+0 0 40px rgba(56,189,248,0.4);
+}
+
+.dashboard-progress{
+margin-top:14px;
+}
+
+
+/* ================================
+   QUESTION SECTIONS
+================================ */
+
+.dashboard-section{
+margin-bottom:70px;
+}
+
+.dashboard-section-title{
+
+font-size:26px;
+font-weight:600;
+
+margin-bottom:24px;
+
+border-bottom:1px solid rgba(255,255,255,0.1);
+padding-bottom:10px;
+
+color:#67e8f9;
+}
+
+
+/* ================================
+   FEEDBACK CARD
+================================ */
+
+.dashboard-feedback-card{
+
+background:#0f172a;
+
+padding:22px;
+
+border-radius:14px;
+
+margin-bottom:18px;
+
+box-shadow:0 8px 22px rgba(0,0,0,0.5);
+
+transition:.3s;
+}
+
+.dashboard-feedback-card:hover{
+transform:translateY(-5px);
+box-shadow:0 0 25px rgba(56,189,248,0.35);
+}
+
+.dashboard-question{
+font-weight:600;
+margin-bottom:10px;
+}
+
+.dashboard-score{
+color:#38bdf8;
+font-weight:600;
+margin-bottom:10px;
+}
+
+
+/* ================================
+   FINAL SCORE
+================================ */
+
+.dashboard-final-card{
+
+margin-top:60px;
+
+background:rgba(255,255,255,0.06);
+
+padding:50px;
+
+border-radius:20px;
+
+text-align:center;
+
+box-shadow:0 20px 50px rgba(0,0,0,0.7);
+}
+
+.dashboard-final-score{
+
+font-size:72px;
+font-weight:700;
+
+margin:10px 0;
+
+color:#38bdf8;
+
+text-shadow:0 0 20px rgba(56,189,248,0.6);
+}
+
+.dashboard-decision{
+font-size:36px;
+font-weight:700;
+}
+
+.selected{
+color:#4ade80;
+}
+
+.rejected{
+color:#f87171;
+}
+.result-btn{
+
+width:100%;
+
+padding:10px 16px;
+
+border:none;
+border-radius:10px;
+
+background:linear-gradient(135deg,#38bdf8,#818cf8);
+
+color:white;
+
+cursor:pointer;
+
+font-size:14px;
+
+transition:.3s;
+
+margin-top:12px;
+display:block;
+text-align:center;
+}
+
+.result-btn:hover{
+transform:scale(1.05);
+box-shadow:0 0 20px #38bdf8;
+}
+/* =========================================================
+   AI INTERVIEW SETUP PAGE FIX
+   ========================================================= */
+
+.setup-container{
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:40px;
+}
+
+.setup-card{
+width:420px;
+padding:40px;
+border-radius:18px;
+}
+
+.setup-form{
+display:flex;
+flex-direction:column;
+gap:18px;
+}
+
+.setup-input{
+padding:12px 14px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,0.1);
+background:rgba(255,255,255,0.05);
+color:white;
+outline:none;
+}
+
+.setup-input:focus{
+border-color:#38bdf8;
+box-shadow:0 0 10px rgba(56,189,248,0.4);
+}
+/* =========================================================
+   RESUME UPLOAD CARD
+========================================================= */
+
+.file-input{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,0.15);
+background:rgba(0,0,0,0.35);
+color:white;
+cursor:pointer;
+transition:.3s;
+}
+
+.file-input:hover{
+border-color:#38bdf8;
+box-shadow:0 0 10px rgba(56,189,248,0.4);
+}
+
+/* Upload button */
+
+.upload-btn{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+font-weight:600;
+font-size:15px;
+cursor:pointer;
+
+background:linear-gradient(135deg,#38bdf8,#818cf8);
+color:white;
+
+transition:.35s;
+}
+
+.upload-btn:hover{
+transform:scale(1.05);
+box-shadow:0 0 20px #38bdf8;
+}
+
+.upload-btn:active{
+transform:scale(.96);
 }

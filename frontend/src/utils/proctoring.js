@@ -16,17 +16,19 @@ export async function loadProctoringModels() {
 }
 
 export async function analyzeFrame(video) {
-  // Hard camera validation
-  if (
-    !video ||
-    !video.srcObject ||
-    video.readyState < 2
-  ) {
+
+  if (!video || !video.srcObject || video.readyState < 2) {
     return { cameraLost: true };
   }
 
   const detections = await faceapi
-    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+    .detectAllFaces(
+      video,
+      new faceapi.TinyFaceDetectorOptions({
+        inputSize: 512,
+        scoreThreshold: 0.25
+      })
+    )
     .withFaceLandmarks(true);
 
   let headStatus = "OK";

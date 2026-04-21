@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Header
 from bson import ObjectId
 from datetime import datetime, timezone
 from typing import Optional
@@ -9,12 +9,22 @@ from Backend.app.services.dynamic_question_engine import generate_interview_ques
 from Backend.app.services.gemini_answer_evaluator import evaluate_answer
 from Backend.app.services.scoring_engine import calculate_final_score
 from Backend.app.services.code_analyzer import analyze_code
+from Backend.app.services.vision_analysis import analyze_frame
+
 from Backend.app.db.mongodb import interviews_collection
+from Backend.app.core.security import decode_token
+
+from pydantic import BaseModel
+import base64
+import numpy as np
+import cv2
+
 
 router = APIRouter(prefix="/api/interview", tags=["Interview"])
 
 UPLOAD_DIR = "Backend/app/db/resumes"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 
 # =================================================
 # START INTERVIEW
@@ -26,13 +36,22 @@ def start_interview(
     email: str = Form(...),
     mobile: str = Form(...),
     job_role: str = Form(...),
-    difficulty: str = Form(...)
+    difficulty: str = Form(...),
+    authorization: str = Header(None)
 ):
+
     final_name = name or full_name
     if not final_name:
         raise HTTPException(400, "Name required")
 
+    user_id = None
+
+    if authorization:
+        token = authorization.split(" ")[1]
+        user_id = decode_token(token)
+
     interview = {
+        "user_id": user_id,
         "name": final_name,
         "email": email,
         "mobile": mobile,
@@ -46,7 +65,43 @@ def start_interview(
     }
 
     res = interviews_collection.insert_one(interview)
+
     return {"interview_id": str(res.inserted_id)}
+
+
+# =================================================
+# GET USER INTERVIEWS (HOME PAGE)
+# =================================================
+@router.get("/user")
+def get_user_interviews(authorization: str = Header(None)):
+
+    interviews = interviews_collection.find({
+        "status": "completed"
+    }).sort("created_at", -1)
+
+    result = []
+
+    for i in interviews:
+
+        # Handle both formats safely
+        role = i.get("job_role") or i.get("role") or "Unknown Role"
+
+        score = 0
+        if "scores" in i:
+            score = i.get("scores", {}).get("final", 0)
+        else:
+            score = i.get("score", 0)
+
+        result.append({
+            "_id": str(i["_id"]),
+            "role": role,
+            "difficulty": i.get("difficulty", "medium"),
+            "score": score,
+            "created_at": i.get("created_at")
+        })
+
+    return result
+
 
 # =================================================
 # UPLOAD RESUME
@@ -56,10 +111,12 @@ def upload_resume(
     interview_id: str = Form(...),
     resume: UploadFile = File(...)
 ):
+
     if not resume.filename.lower().endswith(".pdf"):
         raise HTTPException(400, "Only PDF resumes allowed")
 
     path = os.path.join(UPLOAD_DIR, resume.filename)
+
     with open(path, "wb") as f:
         shutil.copyfileobj(resume.file, f)
 
@@ -75,12 +132,15 @@ def upload_resume(
 
     return {"message": "Resume uploaded"}
 
+
 # =================================================
-# GENERATE QUESTIONS (LOCKED ORDER)
+# GENERATE QUESTIONS
 # =================================================
 @router.post("/generate-questions")
 def generate_questions(interview_id: str = Form(...)):
+
     interview = interviews_collection.find_one({"_id": ObjectId(interview_id)})
+
     if not interview:
         raise HTTPException(404, "Interview not found")
 
@@ -90,12 +150,12 @@ def generate_questions(interview_id: str = Form(...)):
         difficulty=interview["difficulty"]
     )
 
-    # ---------- SAFE NORMALIZATION ----------
     self_intro = q.get("self_intro", [])[:1] or [
-        "Can you briefly introduce yourself and your experience relevant to this role?"
+        "Can you briefly introduce yourself?"
     ]
 
     technical = q.get("technical", [])[:6]
+
     while len(technical) < 6:
         technical.append(
             f"Explain a core concept related to {interview['job_role']}."
@@ -106,6 +166,7 @@ def generate_questions(interview_id: str = Form(...)):
     ]
 
     coding = q.get("coding", [])[:2]
+
     while len(coding) < 2:
         coding.append(
             "Write a Python function that solves a basic real-world problem."
@@ -129,27 +190,33 @@ def generate_questions(interview_id: str = Form(...)):
 
     return {"total_questions": len(ordered_questions)}
 
+
 # =================================================
 # NEXT QUESTION
 # =================================================
 @router.post("/next-question")
 def next_question(interview_id: str = Form(...)):
+
     interview = interviews_collection.find_one({"_id": ObjectId(interview_id)})
+
     questions = interview.get("ordered_questions")
 
     if not questions:
         raise HTTPException(400, "Questions not generated")
 
     idx = interview.get("current_index", 0)
+
     if idx >= len(questions):
         return {"message": "Interview completed"}
 
     q = questions[idx]
+
     return {
         "question_number": idx + 1,
         "question": q["text"],
         "question_type": q["type"]
     }
+
 
 # =================================================
 # SUBMIT ANSWER
@@ -161,6 +228,7 @@ def submit_answer(
     question_type: str = Form(...),
     answer: Optional[str] = Form("")
 ):
+
     interviews_collection.update_one(
         {"_id": ObjectId(interview_id)},
         {
@@ -175,26 +243,44 @@ def submit_answer(
             "$inc": {"current_index": 1}
         }
     )
+
     return {"ok": True}
 
+
 # =================================================
-# FINAL EVALUATION (PERFECT LOGIC)
+# FINAL EVALUATION
 # =================================================
 @router.post("/evaluate")
 def evaluate_interview(interview_id: str = Form(...)):
+
     interview = interviews_collection.find_one({"_id": ObjectId(interview_id)})
+
+    if not interview:
+        raise HTTPException(404, "Interview not found")
+
     answers = interview.get("answers", [])
 
-    section_scores = {k: [] for k in ["self_intro", "technical", "aptitude", "coding"]}
-    section_feedback = {k: [] for k in ["self_intro", "technical", "aptitude", "coding"]}
+    section_scores = {
+        "self_intro": [],
+        "technical": [],
+        "aptitude": [],
+        "coding": []
+    }
+
+    section_feedback = {
+        "self_intro": [],
+        "technical": [],
+        "aptitude": [],
+        "coding": []
+    }
 
     for a in answers:
+
         if not a["attempted"]:
             continue
 
         qtype = a["type"]
 
-        # -------- CODING (RULE-BASED) --------
         if qtype == "coding":
             result = analyze_code(a["answer"])
         else:
@@ -205,19 +291,21 @@ def evaluate_interview(interview_id: str = Form(...)):
             )
 
         section_scores[qtype].append(result["score"])
+
         section_feedback[qtype].append({
             "question": a["question"],
             "answer": a["answer"],
             "score": result["score"],
-            "strengths": result["strengths"],
-            "weaknesses": result["weaknesses"],
-            "suggestions": result["suggestions"]
+            "strengths": result.get("strengths", []),
+            "weaknesses": result.get("weaknesses", []),
+            "suggestions": result.get("suggestions", [])
         })
 
-    def avg(x): return round(sum(x) / len(x), 2) if x else None
+    def avg(arr):
+        return round(sum(arr) / len(arr), 2) if arr else 0
 
     scores = {
-        "resume": interview["resume_score"],
+        "resume": interview.get("resume_score", 0),
         "self_intro": avg(section_scores["self_intro"]),
         "technical": avg(section_scores["technical"]),
         "aptitude": avg(section_scores["aptitude"]),
@@ -235,27 +323,71 @@ def evaluate_interview(interview_id: str = Form(...)):
 
     interviews_collection.update_one(
         {"_id": ObjectId(interview_id)},
-        {"$set": {
-            "scores": scores,
-            "feedback": section_feedback,
-            "decision": decision,
-            "status": "completed"
-        }}
+        {
+            "$set": {
+                "scores": scores,
+                "feedback": section_feedback,
+                "decision": decision,
+                "status": "completed"
+            }
+        }
     )
 
-    return {"scores": scores, "feedback": section_feedback, "decision": decision}
+    return {
+        "scores": scores,
+        "feedback": section_feedback,
+        "decision": decision
+    }
+
 
 # =================================================
 # RESULT FETCH
 # =================================================
 @router.get("/result/{interview_id}")
 def get_result(interview_id: str):
+
     interview = interviews_collection.find_one({"_id": ObjectId(interview_id)})
-    if not interview or "scores" not in interview:
+
+    if not interview:
         raise HTTPException(404, "Result not found")
 
     return {
-        "scores": interview["scores"],
-        "feedback": interview["feedback"],
-        "decision": interview["decision"]
+        "scores": interview.get("scores"),
+        "feedback": interview.get("feedback"),
+        "decision": interview.get("decision")
     }
+
+
+# =================================================
+# VISION ANALYSIS
+# =================================================
+class VisionRequest(BaseModel):
+    image: str
+
+
+@router.post("/analyze-vision")
+def analyze_vision(data: VisionRequest):
+
+    try:
+
+        image_data = data.image
+
+        if "," in image_data:
+            image_data = image_data.split(",")[1]
+
+        img_bytes = base64.b64decode(image_data)
+
+        np_arr = np.frombuffer(img_bytes, np.uint8)
+
+        frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+        if frame is None:
+            raise HTTPException(400, "Invalid image")
+
+        result = analyze_frame(frame)
+
+        return result
+
+    except Exception as e:
+
+        raise HTTPException(500, str(e))

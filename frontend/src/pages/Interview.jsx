@@ -4,6 +4,7 @@ import { speak } from "../utils/speech";
 import { startRecording } from "../utils/record";
 import { startCamera } from "../utils/camera";
 import { loadProctoringModels, analyzeFrame } from "../utils/proctoring";
+import { analyzeVision } from "../api/interviewApi";
 
 export default function Interview() {
   const interviewId = localStorage.getItem("interview_id");
@@ -11,6 +12,7 @@ export default function Interview() {
   const videoRef = useRef(null);
   const recognitionRef = useRef(null);
   const intervalRef = useRef(null);
+  const noFaceCounter = useRef(0);
 
   const [question, setQuestion] = useState("");
   const [questionType, setQuestionType] = useState("");
@@ -21,7 +23,7 @@ export default function Interview() {
   const [trustScore, setTrustScore] = useState(100);
   const [warning, setWarning] = useState("");
   const [finished, setFinished] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // 🔥 FIX
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isCoding = questionType === "coding";
 
@@ -48,11 +50,10 @@ export default function Interview() {
     setQuestionType(res.data.question_type);
     setQuestionNumber(res.data.question_number);
 
-    // reset
     setAnswer("");
     setCode("");
     setRecording(false);
-    setIsSubmitting(false); // 🔥 unlock
+    setIsSubmitting(false);
   };
 
   /* ---------------- SPEAK ---------------- */
@@ -60,21 +61,85 @@ export default function Interview() {
     if (question && !isCoding) speak(question);
   }, [question, isCoding]);
 
-  /* ---------------- CAMERA ---------------- */
+  /* ---------------- CAMERA + PROCTORING ---------------- */
   useEffect(() => {
     const init = async () => {
       await startCamera(videoRef);
       await loadProctoringModels();
 
       intervalRef.current = setInterval(async () => {
-        const result = await analyzeFrame(videoRef.current);
+        const video = videoRef.current;
+        if (!video || video.readyState < 2) return;
+
+        /* -------- FRONTEND FACE CHECK -------- */
+        const result = await analyzeFrame(video);
+
         if (result?.faces.length === 0) {
-          setWarning("⚠️ Face not detected");
-          setTrustScore((s) => Math.max(s - 2, 0));
-        } else {
-          setWarning("");
+          noFaceCounter.current += 1;
+
+          if (noFaceCounter.current >= 2) {
+            setWarning("⚠️ Face not detected");
+            setTimeout(() => setWarning(""), 2500);
+
+            setTrustScore(prev => Math.max(prev - 2, 0));
+          }
+
+        } else if (result?.faces.length === 1) {
+          noFaceCounter.current = 0;
         }
-      }, 2000);
+
+        /* -------- BACKEND VISION CHECK -------- */
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+
+        const imageBase64 = canvas.toDataURL("image/jpeg");
+
+        try {
+          const response = await analyzeVision(imageBase64);
+          const data = response.data;
+
+          let deduction = 0;
+
+          if (data.emotion === "no_face") {
+            deduction = 5;
+            setWarning("⚠️ Face not detected");
+            setTimeout(() => setWarning(""), 2500);
+          }
+
+          else if (data.objects_detected?.includes("cell phone")) {
+            deduction = 5;
+            setWarning("⚠️ Mobile phone detected");
+            setTimeout(() => setWarning(""), 2500);
+          }
+
+          else if (data.objects_detected?.includes("book")) {
+            deduction = 3;
+            setWarning("⚠️ Book detected");
+            setTimeout(() => setWarning(""), 2500);
+          }
+
+          if (deduction > 0) {
+            setTrustScore(prev => {
+              const newScore = Math.max(prev - deduction, 0);
+
+              if (newScore < 30) {
+                alert("Interview terminated due to suspicious activity.");
+                window.location.href = "/";
+              }
+
+              return newScore;
+            });
+          }
+
+        } catch (err) {
+          console.error("Vision error:", err);
+        }
+
+      }, 1500);
     };
 
     init();
@@ -99,9 +164,9 @@ export default function Interview() {
     setRecording(true);
   };
 
-  /* ---------------- SUBMIT (SAFE) ---------------- */
+  /* ---------------- SUBMIT ---------------- */
   const submitAnswer = async () => {
-    if (isSubmitting) return; // 🔥 prevent double click
+    if (isSubmitting) return;
 
     setIsSubmitting(true);
 
@@ -124,7 +189,6 @@ export default function Interview() {
     }
   };
 
-  /* ---------------- FINAL STATE ---------------- */
   if (finished) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white text-xl">
@@ -133,7 +197,6 @@ export default function Interview() {
     );
   }
 
-  /* ---------------- UI ---------------- */
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 to-black text-white flex justify-center items-center">
       <video

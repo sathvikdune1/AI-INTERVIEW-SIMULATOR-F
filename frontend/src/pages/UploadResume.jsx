@@ -82,8 +82,8 @@ export default function UploadResume() {
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
 
         {/* Glow orbs */}
-        <div className="bg-orb blue w-[420px] h-[420px] top-20 left-20 absolute" />
-        <div className="bg-orb purple w-[360px] h-[360px] bottom-20 right-20 absolute" />
+        <div className="bg-orb blue w-[420px] h-[420px] top-20 left-20 absolute pointer-events-none" />
+        <div className="bg-orb purple w-[360px] h-[360px] bottom-20 right-20 absolute pointer-events-none" />
 
         <div className="flex items-center gap-28 relative z-10">
 
@@ -92,28 +92,32 @@ export default function UploadResume() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="glass-card w-[380px]"
+            className="glass-card w-[440px] p-8"
           >
-            <h2 className="text-2xl font-bold neon-text text-center mb-6">
+            <h2 className="text-3xl font-bold neon-text text-center mb-8">
               Upload Your Resume
             </h2>
 
-            <input
-              type="file"
-              accept=".pdf"
-              className="w-full mb-5 text-sm text-white"
-              onChange={(e) => setFile(e.target.files[0])}
-            />
+            <div className="flex flex-col gap-5">
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={upload}
-              disabled={loading}
-              className="ai-button"
-            >
-              {loading ? "Processing..." : "Upload & Continue →"}
-            </motion.button>
+              <input
+                type="file"
+                accept=".pdf"
+                className="w-full p-3 rounded-lg bg-black/40 border border-white/10 text-sm text-white cursor-pointer hover:border-blue-400 transition"
+                onChange={(e) => setFile(e.target.files[0])}
+              />
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={upload}
+                disabled={loading}
+                className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 font-semibold text-white shadow-lg hover:shadow-blue-500/40 transition"
+              >
+                {loading ? "Processing..." : "Upload & Continue →"}
+              </motion.button>
+
+            </div>
           </motion.div>
 
           {/* Robot Animation */}

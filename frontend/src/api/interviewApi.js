@@ -23,3 +23,24 @@ export const submitAnswer = (data) =>
 
 export const evaluateInterview = (data) =>
   API.post("/evaluate", data);
+
+export const analyzeVision = (imageBase64) =>
+  API.post("/analyze-vision", { image: imageBase64 });
+
+/* -----------------------------
+GET USER INTERVIEWS
+----------------------------- */
+
+export const getUserInterviews = async () => {
+
+  const token = localStorage.getItem("token");
+
+  return axios.get(
+    "http://127.0.0.1:8000/api/interview/user",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+};

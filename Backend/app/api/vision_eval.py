@@ -1,7 +1,4 @@
-from fastapi import APIRouter
+from Backend.app.services.vision_analysis import analyze_frame
 
-router = APIRouter()
-
-@router.post("/evaluate")
-def evaluate():
-    return {"score": 80}
+def evaluate_vision(frame):
+    return analyze_frame(frame)

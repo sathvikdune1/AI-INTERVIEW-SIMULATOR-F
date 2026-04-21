@@ -24,7 +24,8 @@ export default function PageWrapper({ children }) {
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="min-h-screen"
+      style={{ position: "relative", zIndex: 10 }}   /* ⭐ fix */
+      className="min-h-screen pointer-events-auto"   /* ⭐ fix */
     >
       {children}
     </motion.div>

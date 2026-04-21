@@ -50,17 +50,17 @@ export default function StartInterview() {
 
   return (
     <PageWrapper>
-      <div className="relative min-h-screen flex items-center justify-center text-white overflow-hidden">
+      <div className="relative min-h-screen flex items-center justify-center text-white overflow-hidden z-10">
 
         {/* Background glow */}
-        <div className="bg-orb blue w-[300px] h-[300px] top-10 left-10 absolute" />
-        <div className="bg-orb purple w-[260px] h-[260px] bottom-10 right-10 absolute" />
+        <div className="bg-orb blue w-[300px] h-[300px] top-10 left-10 absolute pointer-events-none" />
+        <div className="bg-orb purple w-[260px] h-[260px] bottom-10 right-10 absolute pointer-events-none" />
 
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="glass-card w-[420px] z-10"
+          className="glass-card w-[420px] z-10 p-8"
         >
           <h2 className="text-3xl font-bold neon-text text-center mb-6">
             AI Interview Setup

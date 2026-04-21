@@ -2,7 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Animated futuristic background */
+
 body {
-  background-color: #0b0f19;
+  background: radial-gradient(circle at top left, #0b1d3a, #050814 70%);
   color: white;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Moving gradient animation */
+
+body::before{
+  content:"";
+  position:fixed;
+  width:200%;
+  height:200%;
+  top:-50%;
+  left:-50%;
+
+  background:
+    radial-gradient(circle,#38bdf830 0%,transparent 40%),
+    radial-gradient(circle,#818cf830 0%,transparent 40%);
+
+  animation:moveBackground 18s linear infinite;
+
+  z-index:-1;
+
+  /* ⭐ THIS FIXES YOUR ISSUE */
+  pointer-events:none;
+}
+
+@keyframes moveBackground{
+  0%{ transform:rotate(0deg); }
+  100%{ transform:rotate(360deg); }
+}
+
+*{
+  box-sizing:border-box;
 }

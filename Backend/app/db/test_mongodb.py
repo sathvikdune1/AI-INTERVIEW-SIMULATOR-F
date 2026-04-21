@@ -1,8 +1,5 @@
 from datetime import datetime, timezone
-from Backend.app.db.mongodb import (
-    interviews_collection,
-    ping_db
-)
+from app.db.mongodb import interviews_collection, ping_db
 
 def test_mongodb():
     print("\n--- TESTING MONGODB CONNECTION ---")

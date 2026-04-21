@@ -1,7 +1,8 @@
 from Backend.app.services.gemini_answer_evaluator import evaluate_answer
 
 
-def score_section_with_gemini(section: str, answers: list):
+def score_section(section: str, answers: list):
+
     if not answers:
         return 0, []
 
@@ -9,6 +10,7 @@ def score_section_with_gemini(section: str, answers: list):
     feedback = []
 
     for ans in answers:
+
         result = evaluate_answer(
             question=ans["question"],
             answer=ans["answer"],
@@ -26,4 +28,6 @@ def score_section_with_gemini(section: str, answers: list):
             "suggestions": result["suggestions"]
         })
 
-    return round(sum(scores) / len(scores), 2), feedback
+    section_score = round(sum(scores) / len(scores), 2)
+
+    return section_score, feedback
