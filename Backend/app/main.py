@@ -18,7 +18,9 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 🔥 allow all (for now)
+    allow_origins=[
+        "https://ai-interview-simulator-xi.vercel.app"
+    ],  # 🔥 allow all (for now)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
