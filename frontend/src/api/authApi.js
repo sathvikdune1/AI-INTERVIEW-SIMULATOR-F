@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
- baseURL:"http://127.0.0.1:8000/api/auth"
+ baseURL:"http://54.175.234.64:8000"
 });
 
 export const registerUser = (data)=>{
