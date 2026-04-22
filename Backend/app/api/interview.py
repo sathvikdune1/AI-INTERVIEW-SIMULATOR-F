@@ -27,7 +27,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 # =================================================
-# START INTERVIEW
+# START INTERVIEW (FIXED)
 # =================================================
 @router.post("/start")
 def start_interview(
@@ -44,11 +44,15 @@ def start_interview(
     if not final_name:
         raise HTTPException(400, "Name required")
 
-    user_id = None
+    # ✅ STRICT TOKEN VALIDATION
+    if not authorization or " " not in authorization:
+        raise HTTPException(401, "Authorization required")
 
-    if authorization:
+    try:
         token = authorization.split(" ")[1]
-        user_id = decode_token(token)
+        user_id = str(decode_token(token))
+    except:
+        raise HTTPException(401, "Invalid token")
 
     interview = {
         "user_id": user_id,
@@ -70,37 +74,44 @@ def start_interview(
 
 
 # =================================================
-# GET USER INTERVIEWS (HOME PAGE)
+# GET USER INTERVIEWS (FIXED)
 # =================================================
 @router.get("/user")
 def get_user_interviews(authorization: str = Header(None)):
 
+    if not authorization or " " not in authorization:
+        raise HTTPException(401, "Authorization header missing")
+
+    try:
+        token = authorization.split(" ")[1]
+        user_id = str(decode_token(token))
+    except:
+        raise HTTPException(401, "Invalid token")
+
     interviews = interviews_collection.find({
-        "status": "completed"
+        "user_id": user_id
     }).sort("created_at", -1)
 
     result = []
 
     for i in interviews:
 
-        # Handle both formats safely
-        role = i.get("job_role") or i.get("role") or "Unknown Role"
+        role = i.get("job_role") or i.get("role") or "Interview"
 
         score = 0
         if "scores" in i:
             score = i.get("scores", {}).get("final", 0)
-        else:
-            score = i.get("score", 0)
 
         result.append({
             "_id": str(i["_id"]),
             "role": role,
             "difficulty": i.get("difficulty", "medium"),
             "score": score,
+            "status": i.get("status", "started"),
             "created_at": i.get("created_at")
         })
 
-    return result
+    return {"data": result}
 
 
 # =================================================
@@ -369,16 +380,13 @@ class VisionRequest(BaseModel):
 def analyze_vision(data: VisionRequest):
 
     try:
-
         image_data = data.image
 
         if "," in image_data:
             image_data = image_data.split(",")[1]
 
         img_bytes = base64.b64decode(image_data)
-
         np_arr = np.frombuffer(img_bytes, np.uint8)
-
         frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
         if frame is None:
@@ -389,5 +397,4 @@ def analyze_vision(data: VisionRequest):
         return result
 
     except Exception as e:
-
         raise HTTPException(500, str(e))

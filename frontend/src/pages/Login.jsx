@@ -58,6 +58,20 @@ export default function Login() {
         <div className="background-shape"></div>
         <div className="secondary-shape"></div>
 
+        {/* 🔥 WELCOME SECTION */}
+
+        <div className="welcome-section signin">
+          <div className="slide-element">
+            <h2>Welcome Back</h2>
+          </div>
+        </div>
+
+        <div className="welcome-section signup">
+          <div className="slide-element">
+            <h2>Welcome</h2>
+          </div>
+        </div>
+
         {/* LOGIN */}
 
         <div className="credentials-panel signin">
@@ -99,15 +113,12 @@ export default function Login() {
             <div className="switch-link slide-element">
               <p>
                 Don't have an account?
-                <a
-                  href="#"
-                  onClick={(e)=>{
-                    e.preventDefault();
-                    setToggled(true);
-                  }}
+                <span
+                  style={{cursor:"pointer", color:"#00d4ff"}}
+                  onClick={()=> setToggled(true)}
                 >
                   Sign Up
-                </a>
+                </span>
               </p>
             </div>
 
@@ -168,15 +179,12 @@ export default function Login() {
             <div className="switch-link slide-element">
               <p>
                 Already have an account?
-                <a
-                  href="#"
-                  onClick={(e)=>{
-                    e.preventDefault();
-                    setToggled(false);
-                  }}
+                <span
+                  style={{cursor:"pointer", color:"#00d4ff"}}
+                  onClick={()=> setToggled(false)}
                 >
                   Sign In
-                </a>
+                </span>
               </p>
             </div>
 

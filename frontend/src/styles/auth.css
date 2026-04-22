@@ -29,12 +29,13 @@ align-items:center;
 /* main card */
 
 .auth-wrapper{
-position:relative;
-width:800px;
-height:500px;
-border:2px solid #00d4ff;
-box-shadow:0 0 25px #00d4ff;
-overflow:hidden;
+  position:relative;
+  width:800px;
+  height:500px;
+  border:2px solid #00d4ff;
+  box-shadow:0 0 25px #00d4ff;
+  overflow:hidden;
+  display:flex; /* 🔥 helps proper layout balance */
 }
 
 /* panels */
@@ -294,4 +295,61 @@ transition:1.5s ease;
 
 .auth-wrapper.toggled .secondary-shape{
 transform:rotate(-11deg) skewY(-41deg);
+}
+/* 🔥 FINAL PERFECT ALIGNMENT (PIXEL PERFECT) */
+
+.welcome-section{
+  position:absolute;
+  top:0;
+  width:50%;
+  height:100%;
+  z-index:3;
+  pointer-events:none;
+}
+
+/* TEXT */
+.welcome-section .slide-element{
+  position:absolute;
+  transform:translateY(-50%);
+  transition:0.5s ease;
+}
+
+/* 🔥 LOGIN (RIGHT SIDE - PERFECT CENTER) */
+.welcome-section.signin .slide-element{
+  top:52%;        /* 👈 slight down from center */
+  left:170px;     /* 👈 from diagonal */
+  text-align:left;
+}
+
+/* 🔥 REGISTER (LEFT SIDE - FIXED HIGHER) */
+.welcome-section.signup .slide-element{
+  top:48%;        /* 👈 move UP (fix your issue) */
+  right:130px;    /* 👈 from diagonal */
+  text-align:right;
+}
+
+/* TEXT STYLE */
+.welcome-section h2{
+  font-size:42px;
+  font-weight:600;
+}
+
+/* 🔥 ANIMATION */
+
+/* hide signup initially */
+.welcome-section.signup .slide-element{
+  opacity:0;
+  transform:translateY(-50%) translateX(-60px);
+}
+
+/* show signup */
+.auth-wrapper.toggled .welcome-section.signup .slide-element{
+  opacity:1;
+  transform:translateY(-50%) translateX(0);
+}
+
+/* hide signin */
+.auth-wrapper.toggled .welcome-section.signin .slide-element{
+  opacity:0;
+  transform:translateY(-50%) translateX(60px);
 }

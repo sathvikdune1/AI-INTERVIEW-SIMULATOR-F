@@ -30,16 +30,30 @@ export default function StartInterview() {
     try {
       setLoading(true);
 
+      // ✅ GET TOKEN
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("Please login again");
+        navigate("/login");
+        return;
+      }
+
       const res = await axios.post(
         "http://127.0.0.1:8000/api/interview/start",
         new URLSearchParams(form),
         {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${token}`,   // 🔥 FIX
+          },
         }
       );
 
       localStorage.setItem("interview_id", res.data.interview_id);
+
       navigate("/upload-resume");
+
     } catch (err) {
       console.error(err);
       alert("Failed to start interview");

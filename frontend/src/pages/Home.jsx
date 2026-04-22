@@ -9,31 +9,44 @@ export default function Home() {
   const navigate = useNavigate();
   const [interviews, setInterviews] = useState([]);
   const [starting, setStarting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
 
     const token = localStorage.getItem("token");
 
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     axios.get("http://127.0.0.1:8000/api/interview/user", {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => {
-      const data = res.data.interviews || res.data;
+      const data = res.data.data || [];
       setInterviews(data);
+      setLoading(false);
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+      console.error(err);
+      setLoading(false);
+    });
 
-  }, []);
+  }, [navigate]);
 
 
   const startInterview = () => {
-
     setStarting(true);
-
     setTimeout(() => {
       navigate("/start");
     }, 1200);
+  };
 
+  // ✅ LOGOUT FUNCTION
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
   };
 
 
@@ -41,7 +54,28 @@ export default function Home() {
 
     <PageWrapper>
 
-      <div className="home-layout">
+      <div className="home-layout" style={{ position: "relative" }}>
+
+        {/* 🔥 LOGOUT BUTTON (TOP RIGHT) */}
+        <button
+          onClick={handleLogout}
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            padding: "8px 16px",
+            border: "2px solid #00d4ff",
+            borderRadius: "20px",
+            background: "transparent",
+            color: "#00d4ff",
+            cursor: "pointer",
+            fontSize: "14px",
+            zIndex: 10
+          }}
+        >
+          Logout
+        </button>
+
 
         {/* HERO */}
 
@@ -103,12 +137,12 @@ export default function Home() {
         </div>
 
 
-        {/* 🔥 NEW SECTION ADDED (DO NOT MODIFY ABOVE CODE) */}
+        {/* PREMIUM SECTION */}
 
         <div className="mt-16 px-2">
 
           <h2 className="section-title">
-             Premium Interview Prep Kit
+            Premium Interview Prep Kit
           </h2>
 
           <p className="text-gray-400 mb-6">
@@ -122,7 +156,7 @@ export default function Home() {
           >
 
             <h3 style={{ fontSize: "20px", marginBottom: "10px" }}>
-               Complete Interview Preparation Bundle
+              Complete Interview Preparation Bundle
             </h3>
 
             <p className="text-gray-400 mb-4">
@@ -151,10 +185,13 @@ export default function Home() {
           Interview Logs
         </h2>
 
-        {interviews.length === 0 ? (
+        {loading ? (
+          <p className="text-gray-400">Loading...</p>
+
+        ) : interviews.length === 0 ? (
 
           <p className="text-gray-400">
-            No interviews completed yet.
+            No previous interviews yet.
           </p>
 
         ) : (
@@ -165,18 +202,14 @@ export default function Home() {
 
               <motion.div
                 key={i._id || index}
-
                 initial={{opacity:0, y:20}}
                 animate={{opacity:1, y:0}}
-
                 transition={{delay:index * 0.05}}
-
                 whileHover={{
                   scale:1.04,
                   rotateX:2,
                   rotateY:2
                 }}
-
                 className="log-card"
               >
 

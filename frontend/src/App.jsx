@@ -15,19 +15,17 @@ export default function App() {
 
       <Routes>
 
-        {/* Authentication */}
+        {/* 🔥 FIXED ROUTES */}
         <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />   {/* ✅ IMPORTANT */}
 
         {/* Home Dashboard */}
         <Route path="/home" element={<Home />} />
 
         {/* Interview Workflow */}
         <Route path="/start" element={<StartInterview />} />
-
         <Route path="/upload-resume" element={<UploadResume />} />
-
         <Route path="/interview" element={<Interview />} />
-
         <Route path="/result/:interviewId" element={<ResultDashboard />} />
 
       </Routes>
