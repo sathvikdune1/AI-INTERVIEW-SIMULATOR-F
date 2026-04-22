@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+pymongo
+sentence-transformers
+torch
+whisper
+opencv-python
+mediapipe
+PyPDF2
+reportlab
+matplotlib
+numpy
